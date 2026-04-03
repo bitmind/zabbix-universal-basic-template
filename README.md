@@ -44,7 +44,7 @@ View all current problems, track acknowledged events, and identify the most recu
 
 ## Limitations
 * **Host-centric**: This dashboard is optimized for single-host analysis. For multi-host monitoring, use the default Zabbix pages (Latest Data, Problems, etc.).
-* **Widget limitations**: The dashboard currently lacks some information (interface availability, proxy status, number of unsupported LLDs, links to unsupported objects, and a complete Inventory view) as these cannot be displayed using standard Zabbix 7.0 widgets. This may be updated in future versions.
+* ** Standard widgets limitations**: The dashboard currently lacks some information (interface availability, proxy status, number of unsupported LLDs, links to unsupported objects, and a complete Inventory view) as these cannot be displayed using standard Zabbix 7.0 widgets. This may be updated in future versions.
 
 [!CAUTION]
 * **Performance**: The template includes several "Internal type" items to gather host metadata (unsupported items, interfaces, maintenance status): on large installation please evaluate the impact on your Zabbix instance before applying it to thousands of hosts.
