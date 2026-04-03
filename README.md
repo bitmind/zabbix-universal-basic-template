@@ -1,7 +1,7 @@
 # Zabbix Universal Basic Template
 
 ## Goal
-This simple template adds a basic dashboard to any existing host, providing **inexperienced** users with an easy and comprehensive host-centric view to explore:
+This simple template adds a basic dashboard to any existing host, providing inexperienced users with an easy and comprehensive host-centric view to explore:
 
 * **All host items**, including graphs and descriptions.
 * **All host problems**, including those already acknowledged.
@@ -14,8 +14,8 @@ This information is usually scattered across different Zabbix pages (Latest Data
 ## Features
 
 * **Universal**: Can be applied to any host; it will display data from any already linked templates.
-* **No dependencies**: Built using Zabbix 7.0 default widgets (no custom widgets required).
-* **UI ready**: Fully compatible with both Blue and Dark themes.
+* **No dependencies**: Built using Zabbix 7.0 standard widgets (no custom widgets required).
+* **Dark mode friendly**: Fully compatible with both Blue and Dark themes.
 * **Seamless workflow**: Works alongside all your existing templates and templated dashboards.
 * **Quick access**: The ".Host" dashboard is designed to always be the first tab in the list.
 
@@ -44,7 +44,7 @@ View all current problems, track acknowledged events, and identify the most recu
 
 ## Limitations
 * **Host-centric**: This dashboard is optimized for single-host analysis. For multi-host monitoring, use the default Zabbix pages (Latest Data, Problems, etc.).
-* ** Standard widgets limitations**: The dashboard currently lacks some information (interface availability, proxy status, number of unsupported LLDs, links to unsupported objects, and a complete Inventory view) as these cannot be displayed using standard Zabbix 7.0 widgets. This may be updated in future versions.
+* **Standard widgets limitations**: The dashboard currently lacks some information (interface availability, proxy status, number of unsupported LLDs, links to unsupported objects, and a complete Inventory view) as these cannot be displayed using standard Zabbix 7.0 widgets. This may be updated in future versions.
 
-[!CAUTION]
-* **Performance**: The template includes several "Internal type" items to gather host metadata (unsupported items, interfaces, maintenance status): on large installation please evaluate the impact on your Zabbix instance before applying it to thousands of hosts.
+
+* **Caution**: The template includes several "Internal type" items to gather host metadata (unsupported items, interfaces, maintenance status): on large installation please evaluate the impact on your Zabbix instance before applying it to thousands of hosts.
