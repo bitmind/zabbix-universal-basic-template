@@ -13,9 +13,6 @@ zabbix_export:
         * **All host items**, including graphs and descriptions.
         * **All host problems**, including those already acknowledged.
         * **General host information** (hostname, address, interfaces, inventory) and monitoring status (maintenance, unsupported items).
-      vendor:
-        name: Bitmind
-        version: '1.0'
       groups:
         - name: Templates
       items:
@@ -34,7 +31,7 @@ zabbix_export:
         - uuid: 702bba478eeb40dfac7f69049eabee83
           name: 'Zabbix host: items, enabled'
           type: INTERNAL
-          key: 'zabbix[host, ,items]'
+          key: 'zabbix[host,,items]'
           delay: 10m
           history: 7d
           description: 'Number of enabled items on the host.'
@@ -42,11 +39,11 @@ zabbix_export:
             name: 'Items enabled'
           tags:
             - tag: component
-              value: zabbix
+              value: monitoring
         - uuid: afcff789c9424865a2c565b61f39a392
           name: 'Zabbix host: items, unsupported'
           type: INTERNAL
-          key: 'zabbix[host, ,items_unsupported]'
+          key: 'zabbix[host,,items_unsupported]'
           delay: 10m
           history: 7d
           description: 'Number of unsupported items on the host.'
@@ -54,11 +51,11 @@ zabbix_export:
             name: 'items unsupported'
           tags:
             - tag: component
-              value: zabbix
+              value: monitoring
         - uuid: 09fd200ef3f94dd99ff477be2c7936ac
           name: 'Zabbix host: maintenance status'
           type: INTERNAL
-          key: 'zabbix[host, ,maintenance]'
+          key: 'zabbix[host,,maintenance]'
           history: 7d
           trends: '0'
           description: 'Zabbix maintenance status for this host'
@@ -70,11 +67,11 @@ zabbix_export:
                 - 1d
           tags:
             - tag: component
-              value: zabbix
+              value: monitoring
         - uuid: f81b8c302b9e4fafada443e7c84c4fce
           name: 'Zabbix host: interfaces'
           type: INTERNAL
-          key: 'zabbix[host, discovery, interfaces]'
+          key: 'zabbix[host,discovery,interfaces]'
           delay: 10m
           history: 7d
           value_type: TEXT
@@ -119,6 +116,8 @@ zabbix_export:
                       return 'Error: Could not process JSON to HTML table. ' + error.message;
                   }
           tags:
+            - tag: component
+              value: monitoring
             - tag: component
               value: raw
       dashboards:
@@ -376,7 +375,7 @@ zabbix_export:
                       name: ds.0.itemids.0
                       value:
                         host: 'Universal basic template'
-                        key: 'zabbix[host, ,items]'
+                        key: 'zabbix[host,,items]'
                     - type: INTEGER
                       name: ds.0.transparency
                       value: '7'
@@ -390,7 +389,7 @@ zabbix_export:
                       name: ds.1.itemids.0
                       value:
                         host: 'Universal basic template'
-                        key: 'zabbix[host, ,items_unsupported]'
+                        key: 'zabbix[host,,items_unsupported]'
                     - type: INTEGER
                       name: ds.1.transparency
                       value: '2'
@@ -448,7 +447,7 @@ zabbix_export:
                       name: columns.0.itemid
                       value:
                         host: 'Universal basic template'
-                        key: 'zabbix[host, discovery, interfaces]'
+                        key: 'zabbix[host,discovery,interfaces]'
                     - type: STRING
                       name: columns.0.name
                       value: 'Host interfaces'
@@ -484,7 +483,7 @@ zabbix_export:
                       name: itemid.0
                       value:
                         host: 'Universal basic template'
-                        key: 'zabbix[host, ,maintenance]'
+                        key: 'zabbix[host,,maintenance]'
                     - type: INTEGER
                       name: show.0
                       value: '2'
@@ -812,7 +811,7 @@ zabbix_export:
                       name: itemid.0
                       value:
                         host: 'Universal basic template'
-                        key: 'zabbix[host, ,maintenance]'
+                        key: 'zabbix[host,,maintenance]'
                     - type: INTEGER
                       name: show.0
                       value: '2'
@@ -998,7 +997,7 @@ zabbix_export:
                       name: itemid.0
                       value:
                         host: 'Universal basic template'
-                        key: 'zabbix[host, ,maintenance]'
+                        key: 'zabbix[host,,maintenance]'
                     - type: INTEGER
                       name: show.0
                       value: '2'
