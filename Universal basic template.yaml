@@ -5,34 +5,22 @@ zabbix_export:
       name: Templates
   templates:
     - uuid: 07b51f20dba549a69d0bbbc174eb7eeb
-      template: 'Universal basic template'
-      name: 'Universal basic template'
+      template: Universal
+      name: Universal
       description: |
-        This simple template adds a basic dashboard to any existing host, providing **inexperienced** users with an easy and comprehensive host-centric view to explore:
+        This simple template adds a basic dashboard to any existing host, providing inexperienced users with an easy and comprehensive host-centric view to explore:
         
-        * **All host items**, including graphs and descriptions.
-        * **All host problems**, including those already acknowledged.
-        * **General host information** (hostname, address, interfaces, inventory) and monitoring status (maintenance, unsupported items).
+        * All host items, including graphs and descriptions.
+        * All host problems, including those already acknowledged.
+        * General host information (hostname, address, interfaces, inventory) and monitoring status (maintenance, unsupported items).
       vendor:
         name: Bitmind
-        version: '1.0'
+        version: 1.2
       groups:
         - name: Templates
       items:
-        - uuid: 5fddf84123a04886b5f30973f5b37213
-          name: 'Zabbix host: dummy item'
-          type: CALCULATED
-          key: zabbix.dummy.item
-          delay: 1d
-          history: '0'
-          trends: '0'
-          params: '1'
-          description: 'dummy item to be used in dashboards'
-          tags:
-            - tag: component
-              value: raw
         - uuid: 702bba478eeb40dfac7f69049eabee83
-          name: 'Zabbix host: items, enabled'
+          name: 'Zabbix host: Enabled items'
           type: INTERNAL
           key: 'zabbix[host, ,items]'
           delay: 10m
@@ -44,19 +32,17 @@ zabbix_export:
             - tag: component
               value: zabbix
         - uuid: afcff789c9424865a2c565b61f39a392
-          name: 'Zabbix host: items, unsupported'
+          name: 'Zabbix host: Not supported items'
           type: INTERNAL
           key: 'zabbix[host, ,items_unsupported]'
           delay: 10m
           history: 7d
           description: 'Number of unsupported items on the host.'
-          valuemap:
-            name: 'items unsupported'
           tags:
             - tag: component
               value: zabbix
         - uuid: 09fd200ef3f94dd99ff477be2c7936ac
-          name: 'Zabbix host: maintenance status'
+          name: 'Zabbix host: Maintenance status'
           type: INTERNAL
           key: 'zabbix[host, ,maintenance]'
           history: 7d
@@ -71,15 +57,47 @@ zabbix_export:
           tags:
             - tag: component
               value: zabbix
+        - uuid: 1f7d2aa3e13f4463982e3bb00d04195c
+          name: 'Zabbix host: Active agent availability'
+          type: INTERNAL
+          key: 'zabbix[host, active_agent, available]'
+          history: 7d
+          trends: '0'
+          description: 'ZBX Active agent checks availability for this host'
+          valuemap:
+            name: 'Active checks availability'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1h
+          tags:
+            - tag: component
+              value: zabbix
+        - uuid: 51d11aac5c594059840e62be01451838
+          name: 'Zabbix host: Agent availability'
+          type: INTERNAL
+          key: 'zabbix[host, agent, available]'
+          history: 7d
+          trends: '0'
+          description: 'ZBX agent interfaces availability for this host'
+          valuemap:
+            name: 'Interfaces availability'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1h
+          tags:
+            - tag: component
+              value: zabbix
         - uuid: f81b8c302b9e4fafada443e7c84c4fce
-          name: 'Zabbix host: interfaces'
+          name: 'Zabbix host: Interfaces'
           type: INTERNAL
           key: 'zabbix[host, discovery, interfaces]'
           delay: 10m
           history: 7d
           value_type: TEXT
           trends: '0'
-          description: 'List of monitoring interfaces'
+          description: 'List of monitoring interfaces, in html format, for dashboard purposes.'
           preprocessing:
             - type: DISCARD_UNCHANGED_HEARTBEAT
               parameters:
@@ -94,24 +112,23 @@ zabbix_export:
                       
                       // Inizio della tabella
                       var html = '<table>';
-                      
                       // Definizione dell'intestazione
-                      html += '<thead>';
-                      html += '<tr><th>Address</th><th>Port</th><th>Type</th></tr>';
-                      html += '</thead>';
+                      //html += '<thead>';
+                      html += '<tr><td>Type</td><td>Address</td><td>Port</td></tr>';
+                      //html += '</thead>';
                       
                       // Corpo della tabella
-                      html += '<tbody>';
+                      //html += '<tbody>';
                       
                       data.forEach(function(item) {
                           html += '<tr>';
-                          html += '<td>' + item["{#IF.CONN}"] + '</td>';
-                          html += '<td>' + item["{#IF.PORT}"] + '</td>';
-                          html += '<td>' + item["{#IF.TYPE}"] + '</td>';
+                          html += '<td> ' + item["{#IF.TYPE}"] + ' </td>';
+                          html += '<td> ' + item["{#IF.CONN}"] + ' </td>';
+                          html += '<td> ' + item["{#IF.PORT}"] + ' </td>';
                           html += '</tr>';
                       });
                       
-                      html += '</tbody>';
+                      //html += '</tbody>';
                       html += '</table>';
                       
                       return html;
@@ -121,22 +138,69 @@ zabbix_export:
           tags:
             - tag: component
               value: raw
+        - uuid: e65ee92b41404cf6920d4f2496bc140c
+          name: 'Zabbix host: IPMI availability'
+          type: INTERNAL
+          key: 'zabbix[host, ipmi, available]'
+          history: 7d
+          trends: '0'
+          description: 'IPMI interfaces availability for this host'
+          valuemap:
+            name: 'Interfaces availability'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1h
+          tags:
+            - tag: component
+              value: zabbix
+        - uuid: fe5a6b2925754e379ab171afe5d061f3
+          name: 'Zabbix host: JMX availability'
+          type: INTERNAL
+          key: 'zabbix[host, jmx, available]'
+          history: 7d
+          trends: '0'
+          description: 'JMX interfaces availability for this host'
+          valuemap:
+            name: 'Interfaces availability'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1h
+          tags:
+            - tag: component
+              value: zabbix
+        - uuid: ee0ab8aa675a41d79c948b79cdc60123
+          name: 'Zabbix host: SNMP availability'
+          type: INTERNAL
+          key: 'zabbix[host, snmp, available]'
+          history: 7d
+          trends: '0'
+          description: 'SNMP interfaces availability for this host'
+          valuemap:
+            name: 'Interfaces availability'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1h
+          tags:
+            - tag: component
+              value: zabbix
       dashboards:
         - uuid: fe4487f87b4c440885db10537152cf4e
-          name: .Host
+          name: ':: All data'
           auto_start: 'NO'
           pages:
-            - name: General
+            - name: Overview
               widgets:
                 - type: item
-                  name: 'Visible name'
-                  width: '39'
-                  height: '1'
+                  name: 'Host visible name'
+                  width: '54'
                   hide_header: 'YES'
                   fields:
                     - type: STRING
                       name: description
-                      value: '{HOST.HOST}'
+                      value: '{HOST.NAME}'
                     - type: INTEGER
                       name: desc_bold
                       value: '1'
@@ -145,23 +209,22 @@ zabbix_export:
                       value: '0'
                     - type: INTEGER
                       name: desc_size
-                      value: '50'
+                      value: '35'
                     - type: INTEGER
                       name: desc_v_pos
                       value: '1'
                     - type: ITEM
                       name: itemid.0
                       value:
-                        host: 'Universal basic template'
-                        key: zabbix.dummy.item
+                        host: Universal
+                        key: 'zabbix[host, ,maintenance]'
                     - type: INTEGER
                       name: show.0
                       value: '1'
                 - type: tophosts
-                  name: 'Host description'
-                  'y': '1'
-                  width: '46'
-                  height: '3'
+                  name: 'Host information'
+                  'y': '2'
+                  width: '72'
                   hide_header: 'YES'
                   fields:
                     - type: INTEGER
@@ -178,7 +241,7 @@ zabbix_export:
                       value: '2'
                     - type: STRING
                       name: columns.0.name
-                      value: Host
+                      value: 'Visible name'
                     - type: INTEGER
                       name: columns.1.aggregate_function
                       value: '0'
@@ -193,43 +256,284 @@ zabbix_export:
                       value: '2'
                     - type: STRING
                       name: columns.1.name
-                      value: Description
+                      value: 'Host name'
                     - type: STRING
                       name: columns.1.text
+                      value: '{HOST.HOST}'
+                    - type: INTEGER
+                      name: columns.2.aggregate_function
+                      value: '0'
+                    - type: STRING
+                      name: columns.2.base_color
+                      value: ''
+                    - type: INTEGER
+                      name: columns.2.data
+                      value: '3'
+                    - type: INTEGER
+                      name: columns.2.decimal_places
+                      value: '2'
+                    - type: STRING
+                      name: columns.2.name
+                      value: Description
+                    - type: STRING
+                      name: columns.2.text
                       value: '{HOST.DESCRIPTION}'
+                    - type: INTEGER
+                      name: columns.3.aggregate_function
+                      value: '0'
+                    - type: STRING
+                      name: columns.3.base_color
+                      value: ''
+                    - type: INTEGER
+                      name: columns.3.data
+                      value: '3'
+                    - type: INTEGER
+                      name: columns.3.decimal_places
+                      value: '2'
+                    - type: STRING
+                      name: columns.3.name
+                      value: IP
+                    - type: STRING
+                      name: columns.3.text
+                      value: '{HOST.IP}'
+                    - type: INTEGER
+                      name: columns.4.aggregate_function
+                      value: '0'
+                    - type: STRING
+                      name: columns.4.base_color
+                      value: ''
+                    - type: INTEGER
+                      name: columns.4.data
+                      value: '3'
+                    - type: INTEGER
+                      name: columns.4.decimal_places
+                      value: '2'
+                    - type: STRING
+                      name: columns.4.name
+                      value: 'DNS name'
+                    - type: STRING
+                      name: columns.4.text
+                      value: '{HOST.DNS}'
+                    - type: INTEGER
+                      name: columns.5.aggregate_function
+                      value: '0'
+                    - type: STRING
+                      name: columns.5.base_color
+                      value: ''
+                    - type: INTEGER
+                      name: columns.5.data
+                      value: '3'
+                    - type: INTEGER
+                      name: columns.5.decimal_places
+                      value: '2'
+                    - type: STRING
+                      name: columns.5.name
+                      value: Type
+                    - type: STRING
+                      name: columns.5.text
+                      value: '{INVENTORY.TYPE}'
+                    - type: INTEGER
+                      name: columns.6.aggregate_function
+                      value: '0'
+                    - type: STRING
+                      name: columns.6.base_color
+                      value: ''
+                    - type: INTEGER
+                      name: columns.6.data
+                      value: '3'
+                    - type: INTEGER
+                      name: columns.6.decimal_places
+                      value: '2'
+                    - type: STRING
+                      name: columns.6.name
+                      value: Model
+                    - type: STRING
+                      name: columns.6.text
+                      value: '{INVENTORY.MODEL}'
+                    - type: INTEGER
+                      name: columns.7.aggregate_function
+                      value: '0'
+                    - type: STRING
+                      name: columns.7.base_color
+                      value: ''
+                    - type: INTEGER
+                      name: columns.7.data
+                      value: '3'
+                    - type: INTEGER
+                      name: columns.7.decimal_places
+                      value: '2'
+                    - type: STRING
+                      name: columns.7.name
+                      value: Vendor
+                    - type: STRING
+                      name: columns.7.text
+                      value: '{INVENTORY.VENDOR}'
+                    - type: INTEGER
+                      name: columns.8.aggregate_function
+                      value: '0'
+                    - type: STRING
+                      name: columns.8.base_color
+                      value: ''
+                    - type: INTEGER
+                      name: columns.8.data
+                      value: '3'
+                    - type: INTEGER
+                      name: columns.8.decimal_places
+                      value: '2'
+                    - type: STRING
+                      name: columns.8.name
+                      value: HW
+                    - type: STRING
+                      name: columns.8.text
+                      value: '{INVENTORY.HARDWARE}'
+                    - type: INTEGER
+                      name: columns.9.aggregate_function
+                      value: '0'
+                    - type: STRING
+                      name: columns.9.base_color
+                      value: ''
+                    - type: INTEGER
+                      name: columns.9.data
+                      value: '3'
+                    - type: INTEGER
+                      name: columns.9.decimal_places
+                      value: '2'
+                    - type: STRING
+                      name: columns.9.name
+                      value: OS
+                    - type: STRING
+                      name: columns.9.text
+                      value: '{INVENTORY.OS}'
+                    - type: INTEGER
+                      name: columns.10.aggregate_function
+                      value: '0'
+                    - type: STRING
+                      name: columns.10.base_color
+                      value: ''
+                    - type: INTEGER
+                      name: columns.10.data
+                      value: '3'
+                    - type: INTEGER
+                      name: columns.10.decimal_places
+                      value: '2'
+                    - type: STRING
+                      name: columns.10.name
+                      value: S/N
+                    - type: STRING
+                      name: columns.10.text
+                      value: '{INVENTORY.SERIALNO.A}'
+                    - type: INTEGER
+                      name: columns.11.aggregate_function
+                      value: '0'
+                    - type: STRING
+                      name: columns.11.base_color
+                      value: ''
+                    - type: INTEGER
+                      name: columns.11.data
+                      value: '3'
+                    - type: INTEGER
+                      name: columns.11.decimal_places
+                      value: '2'
+                    - type: STRING
+                      name: columns.11.name
+                      value: Location
+                    - type: STRING
+                      name: columns.11.text
+                      value: '{INVENTORY.LOCATION}'
+                    - type: INTEGER
+                      name: columns.12.aggregate_function
+                      value: '0'
+                    - type: STRING
+                      name: columns.12.base_color
+                      value: ''
+                    - type: INTEGER
+                      name: columns.12.data
+                      value: '3'
+                    - type: INTEGER
+                      name: columns.12.decimal_places
+                      value: '2'
+                    - type: STRING
+                      name: columns.12.name
+                      value: Contact
+                    - type: STRING
+                      name: columns.12.text
+                      value: '{INVENTORY.CONTACT}'
                     - type: INTEGER
                       name: maintenance
                       value: '1'
                     - type: STRING
                       name: reference
                       value: AOMXO
-                - type: piechart
-                  name: 'Items status'
+                - type: problems
+                  name: Events
                   'y': '4'
-                  width: '19'
-                  height: '5'
+                  width: '72'
+                  height: '3'
                   fields:
+                    - type: INTEGER
+                      name: acknowledgement_status
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: NMTRS
+                    - type: INTEGER
+                      name: show_lines
+                      value: '5'
+                    - type: INTEGER
+                      name: show_opdata
+                      value: '1'
+                    - type: INTEGER
+                      name: show_timeline
+                      value: '0'
+                    - type: INTEGER
+                      name: sort_triggers
+                      value: '1'
+                - type: piechart
+                  name: 'Items health'
+                  'y': '7'
+                  width: '15'
+                  height: '4'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
                     - type: INTEGER
                       name: draw_type
                       value: '1'
                     - type: STRING
-                      name: ds.0.color
-                      value: 43A047
+                      name: ds.0.color.0
+                      value: 34AF67
+                    - type: INTEGER
+                      name: ds.0.dataset_type
+                      value: '0'
                     - type: STRING
                       name: ds.0.data_set_label
-                      value: Enabled
+                      value: 'Enabled items'
+                    - type: ITEM
+                      name: ds.0.itemids.0
+                      value:
+                        host: Universal
+                        key: 'zabbix[host, ,items]'
+                    - type: INTEGER
+                      name: ds.0.type.0
+                      value: '1'
                     - type: STRING
-                      name: ds.0.items.0
-                      value: 'Zabbix host: items, enabled'
-                    - type: STRING
-                      name: ds.1.color
-                      value: FF465C
+                      name: ds.1.color.0
+                      value: D64E4E
+                    - type: INTEGER
+                      name: ds.1.dataset_type
+                      value: '0'
                     - type: STRING
                       name: ds.1.data_set_label
                       value: 'Not supported'
-                    - type: STRING
-                      name: ds.1.items.0
-                      value: 'Zabbix host: items, unsupported'
+                    - type: ITEM
+                      name: ds.1.itemids.0
+                      value:
+                        host: Universal
+                        key: 'zabbix[host, ,items_unsupported]'
+                    - type: INTEGER
+                      name: ds.1.type.0
+                      value: '0'
                     - type: INTEGER
                       name: legend
                       value: '0'
@@ -239,47 +543,25 @@ zabbix_export:
                     - type: INTEGER
                       name: stroke
                       value: '2'
-                - type: item
-                  name: Inventory
-                  'y': '9'
-                  width: '72'
-                  height: '8'
-                  fields:
+                    - type: INTEGER
+                      name: total_show
+                      value: '1'
                     - type: STRING
-                      name: description
-                      value: |
-                        Name: {INVENTORY.NAME}	
-                        Alias: {INVENTORY.ALIAS}
-                        Type: {INVENTORY.TYPE}
-                        Location: {INVENTORY.LOCATION}
-                        Contact: {INVENTORY.CONTACT}
-                        Hardware: {INVENTORY.HARDWARE}
-                        Vendor: {INVENTORY.VENDOR}
-                        Model: {INVENTORY.MODEL}
-                        OS: {INVENTORY.OS}
-                        Serial A: {INVENTORY.SERIALNO.A}
-                        Notes: {INVENTORY.NOTES}
+                      name: units
+                      value: items
                     - type: INTEGER
-                      name: desc_h_pos
-                      value: '0'
+                      name: units_show
+                      value: '1'
                     - type: INTEGER
-                      name: desc_size
-                      value: '3'
+                      name: value_size
+                      value: '15'
                     - type: INTEGER
-                      name: desc_v_pos
-                      value: '0'
-                    - type: ITEM
-                      name: itemid.0
-                      value:
-                        host: 'Universal basic template'
-                        key: zabbix.dummy.item
-                    - type: INTEGER
-                      name: show.0
+                      name: value_size_type
                       value: '1'
                 - type: tophosts
-                  x: '19'
-                  'y': '4'
-                  width: '53'
+                  name: 'Items status'
+                  'y': '11'
+                  width: '15'
                   height: '1'
                   hide_header: 'YES'
                   fields:
@@ -303,10 +585,10 @@ zabbix_export:
                       value: '1'
                     - type: STRING
                       name: columns.0.item
-                      value: 'Zabbix host: items, enabled'
+                      value: 'Zabbix host: Enabled items'
                     - type: STRING
                       name: columns.0.name
-                      value: 'Enabled items'
+                      value: Enabled
                     - type: INTEGER
                       name: columns.1.aggregate_function
                       value: '0'
@@ -327,59 +609,82 @@ zabbix_export:
                       value: '1'
                     - type: STRING
                       name: columns.1.item
-                      value: 'Zabbix host: items, unsupported'
+                      value: 'Zabbix host: Not supported items'
                     - type: STRING
                       name: columns.1.name
-                      value: 'Not supported items'
+                      value: 'Not supported'
                     - type: STRING
                       name: columnsthresholds.1.color.0
-                      value: EF9A9A
-                    - type: STRING
-                      name: columnsthresholds.1.color.1
-                      value: E57373
-                    - type: STRING
-                      name: columnsthresholds.1.color.2
-                      value: D32F2F
+                      value: D64E4E
                     - type: STRING
                       name: columnsthresholds.1.threshold.0
                       value: '1'
-                    - type: STRING
-                      name: columnsthresholds.1.threshold.1
-                      value: '5'
-                    - type: STRING
-                      name: columnsthresholds.1.threshold.2
-                      value: '10'
                     - type: INTEGER
                       name: maintenance
                       value: '1'
                     - type: STRING
                       name: reference
                       value: QUDKH
-                - type: svggraph
-                  name: 'Items status'
-                  x: '19'
-                  'y': '5'
-                  width: '53'
-                  height: '4'
+                - type: item
+                  name: Help
+                  'y': '12'
+                  width: '50'
+                  height: '1'
                   hide_header: 'YES'
                   fields:
+                    - type: STRING
+                      name: description
+                      value: |
+                        Not supported items are items in error state which are not collecting data. 
+                        For error details see Latest data page or host configuration item list.
+                    - type: STRING
+                      name: desc_color
+                      value: '787878'
                     - type: INTEGER
-                      name: axisx
+                      name: desc_h_pos
                       value: '0'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '30'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: Universal
+                        key: 'zabbix[host, ,maintenance]'
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                - type: svggraph
+                  name: 'Items status history'
+                  x: '15'
+                  'y': '7'
+                  width: '35'
+                  height: '5'
+                  hide_header: 'YES'
+                  fields:
                     - type: STRING
                       name: ds.0.color.0
-                      value: 7CB342
+                      value: 34AF67
                     - type: INTEGER
                       name: ds.0.dataset_type
                       value: '0'
+                    - type: INTEGER
+                      name: ds.0.fill
+                      value: '2'
                     - type: ITEM
                       name: ds.0.itemids.0
                       value:
-                        host: 'Universal basic template'
+                        host: Universal
                         key: 'zabbix[host, ,items]'
                     - type: INTEGER
                       name: ds.0.transparency
                       value: '7'
+                    - type: INTEGER
+                      name: ds.0.width
+                      value: '3'
                     - type: STRING
                       name: ds.1.color.0
                       value: FF465C
@@ -389,7 +694,7 @@ zabbix_export:
                     - type: ITEM
                       name: ds.1.itemids.0
                       value:
-                        host: 'Universal basic template'
+                        host: Universal
                         key: 'zabbix[host, ,items_unsupported]'
                     - type: INTEGER
                       name: ds.1.transparency
@@ -397,22 +702,200 @@ zabbix_export:
                     - type: INTEGER
                       name: ds.1.type
                       value: '3'
-                    - type: INTEGER
-                      name: legend
+                    - type: STRING
+                      name: lefty_min
                       value: '0'
+                    - type: INTEGER
+                      name: legend_columns
+                      value: '1'
+                    - type: INTEGER
+                      name: legend_lines
+                      value: '2'
                     - type: STRING
                       name: reference
                       value: IIAQW
                     - type: INTEGER
                       name: righty
                       value: '0'
+                - type: honeycomb
+                  name: 'interfaces availability'
+                  x: '50'
+                  'y': '7'
+                  width: '8'
+                  height: '4'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: items.0
+                      value: 'Zabbix host: Agent availability'
+                    - type: STRING
+                      name: items.1
+                      value: 'Zabbix host: IPMI availability'
+                    - type: STRING
+                      name: items.2
+                      value: 'Zabbix host: JMX availability'
+                    - type: STRING
+                      name: items.3
+                      value: 'Zabbix host: SNMP availability'
                     - type: INTEGER
-                      name: working_time
+                      name: maintenance
+                      value: '1'
+                    - type: STRING
+                      name: primary_label
+                      value: '{{ITEM.NAME}.iregsub(": (.*) availability",\1)}'
+                    - type: STRING
+                      name: primary_label_color
+                      value: FFFFFF
+                    - type: STRING
+                      name: reference
+                      value: ABKVO
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: FF465C
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 34AF67
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: '878787'
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '2'
+                - type: item
+                  name: 'Active agent availability'
+                  x: '50'
+                  'y': '11'
+                  width: '8'
+                  height: '1'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: 'Active agent'
+                    - type: STRING
+                      name: desc_color
+                      value: FFFFFF
+                    - type: INTEGER
+                      name: desc_size
+                      value: '35'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '1'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: Universal
+                        key: 'zabbix[host, active_agent, available]'
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: '969696'
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 34AF67
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: D64E4E
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '2'
+                - type: item
+                  name: Help
+                  x: '50'
+                  'y': '12'
+                  width: '22'
+                  height: '1'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: |
+                        Host interfaces are used to connect to the host and execute specific item types.
+                        Red: unavailable. Gray: unknown or not used. Green: available.
+                    - type: STRING
+                      name: desc_color
+                      value: '787878'
+                    - type: INTEGER
+                      name: desc_h_pos
+                      value: '0'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '30'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: Universal
+                        key: 'zabbix[host, ,maintenance]'
+                    - type: INTEGER
+                      name: show.0
                       value: '1'
                 - type: item
-                  name: 'Visible name'
-                  x: '39'
-                  width: '15'
+                  name: 'Maintenance status'
+                  x: '54'
+                  width: '18'
+                  height: '1'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: Universal
+                        key: 'zabbix[host, ,maintenance]'
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: FFA726
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '1'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: FF8000
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '2'
+                    - type: INTEGER
+                      name: units_bold
+                      value: '0'
+                    - type: INTEGER
+                      name: units_show
+                      value: '0'
+                    - type: INTEGER
+                      name: value_bold
+                      value: '0'
+                    - type: INTEGER
+                      name: value_size
+                      value: '35'
+                - type: item
+                  name: 'Main interface address'
+                  x: '54'
+                  'y': '1'
+                  width: '18'
                   height: '1'
                   hide_header: 'YES'
                   fields:
@@ -421,25 +904,24 @@ zabbix_export:
                       value: '{HOST.CONN}'
                     - type: INTEGER
                       name: desc_size
-                      value: '50'
+                      value: '35'
                     - type: INTEGER
                       name: desc_v_pos
                       value: '1'
                     - type: ITEM
                       name: itemid.0
                       value:
-                        host: 'Universal basic template'
-                        key: zabbix.dummy.item
+                        host: Universal
+                        key: 'zabbix[host, ,maintenance]'
                     - type: INTEGER
                       name: show.0
                       value: '1'
                 - type: itemhistory
-                  name: 'Host interfaces'
-                  x: '46'
-                  'y': '1'
-                  width: '26'
-                  height: '3'
-                  hide_header: 'YES'
+                  name: Interfaces
+                  x: '58'
+                  'y': '7'
+                  width: '14'
+                  height: '4'
                   fields:
                     - type: INTEGER
                       name: columns.0.display
@@ -447,8 +929,11 @@ zabbix_export:
                     - type: ITEM
                       name: columns.0.itemid
                       value:
-                        host: 'Universal basic template'
+                        host: Universal
                         key: 'zabbix[host, discovery, interfaces]'
+                    - type: INTEGER
+                      name: columns.0.monospace_font
+                      value: '1'
                     - type: STRING
                       name: columns.0.name
                       value: 'Host interfaces'
@@ -470,62 +955,49 @@ zabbix_export:
                     - type: STRING
                       name: time_period.to
                       value: now
-                - type: item
-                  name: 'Maintenance status'
-                  x: '54'
-                  width: '18'
+                - type: tophosts
+                  name: 'Hostname for active agent'
+                  x: '58'
+                  'y': '11'
+                  width: '14'
                   height: '1'
                   hide_header: 'YES'
                   fields:
                     - type: INTEGER
-                      name: decimal_places
+                      name: columns.0.aggregate_function
                       value: '0'
-                    - type: ITEM
-                      name: itemid.0
-                      value:
-                        host: 'Universal basic template'
-                        key: 'zabbix[host, ,maintenance]'
+                    - type: STRING
+                      name: columns.0.base_color
+                      value: ''
                     - type: INTEGER
-                      name: show.0
+                      name: columns.0.data
+                      value: '3'
+                    - type: INTEGER
+                      name: columns.0.decimal_places
                       value: '2'
                     - type: STRING
-                      name: thresholds.0.color
-                      value: FFA726
+                      name: columns.0.name
+                      value: 'Hostname for active agent'
                     - type: STRING
-                      name: thresholds.0.threshold
+                      name: columns.0.text
+                      value: '{HOST.HOST}'
+                    - type: INTEGER
+                      name: maintenance
                       value: '1'
                     - type: STRING
-                      name: thresholds.1.color
-                      value: FF8000
-                    - type: STRING
-                      name: thresholds.1.threshold
-                      value: '2'
-                    - type: INTEGER
-                      name: units_bold
-                      value: '0'
-                    - type: INTEGER
-                      name: units_show
-                      value: '0'
-                    - type: INTEGER
-                      name: value_bold
-                      value: '0'
-                    - type: INTEGER
-                      name: value_h_pos
-                      value: '2'
-                    - type: INTEGER
-                      name: value_size
-                      value: '50'
-            - name: Items
+                      name: reference
+                      value: CUHOF
+            - name: Values
               widgets:
                 - type: item
-                  name: 'Visible name'
+                  name: 'Host visible name'
                   width: '39'
                   height: '1'
                   hide_header: 'YES'
                   fields:
                     - type: STRING
                       name: description
-                      value: '{HOST.HOST}'
+                      value: '{HOST.NAME}'
                     - type: INTEGER
                       name: desc_bold
                       value: '1'
@@ -541,16 +1013,16 @@ zabbix_export:
                     - type: ITEM
                       name: itemid.0
                       value:
-                        host: 'Universal basic template'
-                        key: zabbix.dummy.item
+                        host: Universal
+                        key: 'zabbix[host, ,maintenance]'
                     - type: INTEGER
                       name: show.0
                       value: '1'
                 - type: itemnavigator
-                  name: 'Select an item'
+                  name: Items
                   'y': '1'
                   width: '18'
-                  height: '12'
+                  height: '9'
                   fields:
                     - type: INTEGER
                       name: group_by.0.attribute
@@ -569,104 +1041,19 @@ zabbix_export:
                       value: raw
                     - type: STRING
                       name: reference
-                      value: DAXIW
-                - type: web
-                  name: 'Web scenarios'
-                  'y': '13'
-                  width: '72'
-                  fields:
-                    - type: STRING
-                      name: reference
-                      value: LXYMG
-                - type: item
-                  x: '18'
-                  'y': '1'
-                  width: '54'
-                  fields:
-                    - type: INTEGER
-                      name: decimal_size
-                      value: '45'
-                    - type: STRING
-                      name: itemid._reference
-                      value: DAXIW._itemid
-                    - type: INTEGER
-                      name: show.0
-                      value: '2'
-                    - type: INTEGER
-                      name: show.1
-                      value: '3'
-                    - type: INTEGER
-                      name: show.2
-                      value: '4'
-                    - type: INTEGER
-                      name: time_h_pos
-                      value: '0'
-                    - type: INTEGER
-                      name: time_v_pos
-                      value: '2'
-                    - type: INTEGER
-                      name: units_size
-                      value: '45'
-                    - type: INTEGER
-                      name: value_h_pos
-                      value: '0'
-                    - type: INTEGER
-                      name: value_size
-                      value: '60'
+                      value: EKIRD
                 - type: svggraph
-                  name: 'Selected period'
-                  x: '18'
-                  'y': '3'
-                  width: '54'
-                  height: '5'
-                  hide_header: 'YES'
-                  fields:
-                    - type: STRING
-                      name: ds.0.color.0
-                      value: 0040FF
-                    - type: INTEGER
-                      name: ds.0.dataset_type
-                      value: '0'
-                    - type: INTEGER
-                      name: ds.0.fill
-                      value: '1'
-                    - type: STRING
-                      name: ds.0.itemids.0._reference
-                      value: DAXIW._itemid
-                    - type: INTEGER
-                      name: ds.0.width
-                      value: '3'
-                    - type: INTEGER
-                      name: legend_statistic
-                      value: '1'
-                    - type: STRING
-                      name: reference
-                      value: CQUHC
-                    - type: INTEGER
-                      name: righty
-                      value: '0'
-                    - type: INTEGER
-                      name: show_problems
-                      value: '1'
-                    - type: INTEGER
-                      name: simple_triggers
-                      value: '1'
-                    - type: INTEGER
-                      name: working_time
-                      value: '1'
-                - type: svggraph
-                  name: 'Last day'
-                  x: '18'
-                  'y': '8'
-                  width: '27'
+                  name: 'Last 24 hours'
+                  'y': '10'
+                  width: '24'
                   height: '3'
                   fields:
                     - type: INTEGER
-                      name: axisx
-                      value: '0'
+                      name: ds.0.axisy
+                      value: '1'
                     - type: STRING
                       name: ds.0.color.0
-                      value: 0040FF
+                      value: 9B5DE5
                     - type: INTEGER
                       name: ds.0.dataset_type
                       value: '0'
@@ -675,22 +1062,25 @@ zabbix_export:
                       value: '1'
                     - type: STRING
                       name: ds.0.itemids.0._reference
-                      value: DAXIW._itemid
+                      value: EKIRD._itemid
+                    - type: INTEGER
+                      name: ds.0.transparency
+                      value: '3'
                     - type: INTEGER
                       name: ds.0.width
                       value: '2'
+                    - type: INTEGER
+                      name: lefty
+                      value: '0'
                     - type: INTEGER
                       name: legend
                       value: '0'
                     - type: STRING
                       name: reference
-                      value: LXAXK
+                      value: XWAVR
                     - type: INTEGER
-                      name: righty
-                      value: '0'
-                    - type: INTEGER
-                      name: simple_triggers
-                      value: '1'
+                      name: source
+                      value: '2'
                     - type: STRING
                       name: time_period.from
                       value: now-1d
@@ -701,18 +1091,17 @@ zabbix_export:
                       name: working_time
                       value: '1'
                 - type: item
-                  name: 'Item description'
-                  x: '18'
-                  'y': '11'
-                  width: '54'
+                  name: Help
+                  'y': '13'
+                  width: '72'
+                  height: '1'
                   hide_header: 'YES'
                   fields:
                     - type: STRING
                       name: description
                       value: |
-                        {ITEM.DESCRIPTION}
-                        
-                        Key: {ITEM.KEY} State: {ITEM.STATE}
+                        Notes: "No data" may be shown if the item is disabled, not supported or has empty history in the last 24 hours.  
+                        Graphs are always empty for non-numerical items.
                     - type: STRING
                       name: desc_color
                       value: '787878'
@@ -720,48 +1109,61 @@ zabbix_export:
                       name: desc_h_pos
                       value: '0'
                     - type: INTEGER
+                      name: desc_size
+                      value: '40'
+                    - type: INTEGER
                       name: desc_v_pos
                       value: '0'
-                    - type: STRING
-                      name: itemid._reference
-                      value: DAXIW._itemid
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: Universal
+                        key: 'zabbix[host, ,maintenance]'
                     - type: INTEGER
                       name: show.0
                       value: '1'
                 - type: item
-                  name: 'Visible name'
-                  x: '39'
-                  width: '15'
-                  height: '1'
-                  hide_header: 'YES'
+                  x: '18'
+                  'y': '1'
+                  width: '43'
                   fields:
-                    - type: STRING
-                      name: description
-                      value: '{HOST.CONN}'
                     - type: INTEGER
-                      name: desc_size
-                      value: '50'
-                    - type: INTEGER
-                      name: desc_v_pos
+                      name: decimal_places
                       value: '1'
-                    - type: ITEM
-                      name: itemid.0
-                      value:
-                        host: 'Universal basic template'
-                        key: zabbix.dummy.item
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '45'
+                    - type: STRING
+                      name: itemid._reference
+                      value: EKIRD._itemid
                     - type: INTEGER
                       name: show.0
-                      value: '1'
+                      value: '2'
+                    - type: INTEGER
+                      name: show.1
+                      value: '4'
+                    - type: INTEGER
+                      name: units_size
+                      value: '45'
+                    - type: INTEGER
+                      name: value_h_pos
+                      value: '0'
+                    - type: INTEGER
+                      name: value_size
+                      value: '60'
+                    - type: INTEGER
+                      name: value_v_pos
+                      value: '2'
                 - type: svggraph
-                  name: 'Last week'
-                  x: '45'
-                  'y': '8'
-                  width: '27'
-                  height: '3'
+                  name: 'Graph, dashboard period'
+                  x: '18'
+                  'y': '3'
+                  width: '54'
+                  height: '6'
                   fields:
                     - type: INTEGER
-                      name: axisx
-                      value: '0'
+                      name: ds.0.axisy
+                      value: '1'
                     - type: STRING
                       name: ds.0.color.0
                       value: 0040FF
@@ -773,25 +1175,181 @@ zabbix_export:
                       value: '1'
                     - type: STRING
                       name: ds.0.itemids.0._reference
-                      value: DAXIW._itemid
+                      value: EKIRD._itemid
+                    - type: INTEGER
+                      name: ds.0.width
+                      value: '3'
+                    - type: INTEGER
+                      name: lefty
+                      value: '0'
+                    - type: INTEGER
+                      name: legend_statistic
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: DLJNU
+                    - type: INTEGER
+                      name: show_problems
+                      value: '1'
+                    - type: INTEGER
+                      name: simple_triggers
+                      value: '1'
+                    - type: INTEGER
+                      name: working_time
+                      value: '1'
+                - type: item
+                  name: 'Item key • Item description'
+                  x: '18'
+                  'y': '9'
+                  width: '54'
+                  height: '1'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: |
+                        {ITEM.KEY}
+                        {ITEM.DESCRIPTION}
+                    - type: STRING
+                      name: desc_color
+                      value: '787878'
+                    - type: INTEGER
+                      name: desc_h_pos
+                      value: '0'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '40'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '1'
+                    - type: STRING
+                      name: itemid._reference
+                      value: EKIRD._itemid
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                - type: svggraph
+                  name: 'Last 7 days'
+                  x: '24'
+                  'y': '10'
+                  width: '24'
+                  height: '3'
+                  fields:
+                    - type: INTEGER
+                      name: ds.0.axisy
+                      value: '1'
+                    - type: STRING
+                      name: ds.0.color.0
+                      value: 0A9396
+                    - type: INTEGER
+                      name: ds.0.dataset_type
+                      value: '0'
+                    - type: INTEGER
+                      name: ds.0.fill
+                      value: '1'
+                    - type: STRING
+                      name: ds.0.itemids.0._reference
+                      value: EKIRD._itemid
+                    - type: INTEGER
+                      name: ds.0.transparency
+                      value: '3'
                     - type: INTEGER
                       name: ds.0.width
                       value: '2'
+                    - type: INTEGER
+                      name: lefty
+                      value: '0'
                     - type: INTEGER
                       name: legend
                       value: '0'
                     - type: STRING
                       name: reference
-                      value: SVYNJ
+                      value: SASMM
                     - type: INTEGER
-                      name: righty
-                      value: '0'
-                    - type: INTEGER
-                      name: simple_triggers
-                      value: '1'
+                      name: source
+                      value: '2'
                     - type: STRING
                       name: time_period.from
                       value: now-1w
+                    - type: STRING
+                      name: time_period.to
+                      value: now
+                    - type: INTEGER
+                      name: working_time
+                      value: '1'
+                - type: item
+                  name: Address
+                  x: '39'
+                  width: '15'
+                  height: '1'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: '{HOST.CONN}'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '35'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '1'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: Universal
+                        key: 'zabbix[host, ,maintenance]'
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                - type: svggraph
+                  name: 'Last 30 days'
+                  x: '48'
+                  'y': '10'
+                  width: '24'
+                  height: '3'
+                  fields:
+                    - type: INTEGER
+                      name: ds.0.aggregate_function
+                      value: '3'
+                    - type: STRING
+                      name: ds.0.aggregate_interval
+                      value: 12h
+                    - type: INTEGER
+                      name: ds.0.axisy
+                      value: '1'
+                    - type: STRING
+                      name: ds.0.color.0
+                      value: FF4000
+                    - type: INTEGER
+                      name: ds.0.dataset_type
+                      value: '0'
+                    - type: INTEGER
+                      name: ds.0.fill
+                      value: '1'
+                    - type: STRING
+                      name: ds.0.itemids.0._reference
+                      value: EKIRD._itemid
+                    - type: INTEGER
+                      name: ds.0.transparency
+                      value: '3'
+                    - type: INTEGER
+                      name: ds.0.width
+                      value: '2'
+                    - type: INTEGER
+                      name: lefty
+                      value: '0'
+                    - type: INTEGER
+                      name: legend
+                      value: '0'
+                    - type: STRING
+                      name: reference
+                      value: MPEIZ
+                    - type: INTEGER
+                      name: source
+                      value: '2'
+                    - type: STRING
+                      name: time_period.from
+                      value: now-30d
                     - type: STRING
                       name: time_period.to
                       value: now
@@ -811,7 +1369,7 @@ zabbix_export:
                     - type: ITEM
                       name: itemid.0
                       value:
-                        host: 'Universal basic template'
+                        host: Universal
                         key: 'zabbix[host, ,maintenance]'
                     - type: INTEGER
                       name: show.0
@@ -838,22 +1396,83 @@ zabbix_export:
                       name: value_bold
                       value: '0'
                     - type: INTEGER
-                      name: value_h_pos
-                      value: '2'
-                    - type: INTEGER
                       name: value_size
-                      value: '50'
-            - name: Problems
-              widgets:
+                      value: '35'
                 - type: item
-                  name: 'Visible name'
-                  width: '39'
+                  name: 'Last timestamp'
+                  x: '61'
+                  'y': '1'
+                  width: '11'
                   height: '1'
                   hide_header: 'YES'
                   fields:
                     - type: STRING
                       name: description
-                      value: '{HOST.HOST}'
+                      value: 'Collected at:'
+                    - type: STRING
+                      name: desc_color
+                      value: '787878'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '42'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '1'
+                    - type: STRING
+                      name: itemid._reference
+                      value: EKIRD._itemid
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '3'
+                    - type: STRING
+                      name: time_color
+                      value: '787878'
+                    - type: INTEGER
+                      name: time_size
+                      value: '45'
+                    - type: INTEGER
+                      name: time_v_pos
+                      value: '2'
+                - type: item
+                  name: 'Item state'
+                  x: '61'
+                  'y': '2'
+                  width: '11'
+                  height: '1'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: '{ITEM.STATE}'
+                    - type: STRING
+                      name: desc_color
+                      value: '787878'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '42'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '1'
+                    - type: STRING
+                      name: itemid._reference
+                      value: EKIRD._itemid
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+            - name: Problems
+              widgets:
+                - type: item
+                  name: 'Host visible name'
+                  width: '35'
+                  height: '1'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: '{HOST.NAME}'
                     - type: INTEGER
                       name: desc_bold
                       value: '1'
@@ -869,37 +1488,15 @@ zabbix_export:
                     - type: ITEM
                       name: itemid.0
                       value:
-                        host: 'Universal basic template'
-                        key: zabbix.dummy.item
+                        host: Universal
+                        key: 'zabbix[host, ,maintenance]'
                     - type: INTEGER
                       name: show.0
                       value: '1'
-                - type: problemsbysv
-                  name: Unacknowledged
-                  'y': '1'
-                  width: '72'
-                  height: '1'
-                  hide_header: 'YES'
-                  fields:
-                    - type: INTEGER
-                      name: ext_ack
-                      value: '1'
-                    - type: STRING
-                      name: reference
-                      value: GNZUZ
-                    - type: INTEGER
-                      name: show_opdata
-                      value: '1'
-                    - type: INTEGER
-                      name: show_suppressed
-                      value: '1'
-                    - type: INTEGER
-                      name: show_timeline
-                      value: '0'
                 - type: problems
                   name: Unacknowledged
-                  'y': '2'
-                  width: '72'
+                  'y': '1'
+                  width: '66'
                   height: '6'
                   fields:
                     - type: INTEGER
@@ -908,9 +1505,6 @@ zabbix_export:
                     - type: STRING
                       name: reference
                       value: PLVQH
-                    - type: INTEGER
-                      name: show
-                      value: '3'
                     - type: INTEGER
                       name: show_opdata
                       value: '1'
@@ -925,9 +1519,9 @@ zabbix_export:
                       value: '0'
                 - type: problems
                   name: Acknowledged
-                  'y': '8'
+                  'y': '7'
                   width: '43'
-                  height: '5'
+                  height: '3'
                   fields:
                     - type: INTEGER
                       name: acknowledgement_status
@@ -947,10 +1541,31 @@ zabbix_export:
                     - type: INTEGER
                       name: show_timeline
                       value: '0'
+                - type: problems
+                  name: 'Last 50 events'
+                  'y': '10'
+                  width: '72'
+                  height: '5'
+                  fields:
+                    - type: STRING
+                      name: reference
+                      value: PGRQK
+                    - type: INTEGER
+                      name: show
+                      value: '2'
+                    - type: INTEGER
+                      name: show_lines
+                      value: '50'
+                    - type: INTEGER
+                      name: show_suppressed
+                      value: '1'
+                    - type: INTEGER
+                      name: show_symptoms
+                      value: '1'
                 - type: item
-                  name: 'Visible name'
-                  x: '39'
-                  width: '15'
+                  name: Address
+                  x: '35'
+                  width: '14'
                   height: '1'
                   hide_header: 'YES'
                   fields:
@@ -959,25 +1574,28 @@ zabbix_export:
                       value: '{HOST.CONN}'
                     - type: INTEGER
                       name: desc_size
-                      value: '50'
+                      value: '35'
                     - type: INTEGER
                       name: desc_v_pos
                       value: '1'
                     - type: ITEM
                       name: itemid.0
                       value:
-                        host: 'Universal basic template'
-                        key: zabbix.dummy.item
+                        host: Universal
+                        key: 'zabbix[host, ,maintenance]'
                     - type: INTEGER
                       name: show.0
                       value: '1'
                 - type: toptriggers
-                  name: 'Top triggers: last week'
+                  name: 'Recurring problems last 7 days'
                   x: '43'
-                  'y': '8'
+                  'y': '7'
                   width: '29'
-                  height: '5'
+                  height: '3'
                   fields:
+                    - type: INTEGER
+                      name: show_lines
+                      value: '4'
                     - type: STRING
                       name: time_period.from
                       value: now-1w
@@ -986,8 +1604,8 @@ zabbix_export:
                       value: now
                 - type: item
                   name: 'Maintenance status'
-                  x: '54'
-                  width: '18'
+                  x: '49'
+                  width: '17'
                   height: '1'
                   hide_header: 'YES'
                   fields:
@@ -997,7 +1615,7 @@ zabbix_export:
                     - type: ITEM
                       name: itemid.0
                       value:
-                        host: 'Universal basic template'
+                        host: Universal
                         key: 'zabbix[host, ,maintenance]'
                     - type: INTEGER
                       name: show.0
@@ -1024,12 +1642,709 @@ zabbix_export:
                       name: value_bold
                       value: '0'
                     - type: INTEGER
-                      name: value_h_pos
+                      name: value_size
+                      value: '35'
+                - type: clock
+                  name: 'Server time'
+                  x: '66'
+                  width: '6'
+                  height: '1'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: clock_type
+                      value: '1'
+                    - type: STRING
+                      name: time_color
+                      value: '787878'
+                    - type: INTEGER
+                      name: time_type
+                      value: '1'
+                    - type: STRING
+                      name: tzone_timezone
+                      value: local
+                - type: problemsbysv
+                  name: Unacknowledged
+                  x: '66'
+                  'y': '1'
+                  width: '6'
+                  height: '6'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: ext_ack
+                      value: '1'
+                    - type: INTEGER
+                      name: layout
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: GNZUZ
+                    - type: INTEGER
+                      name: show_opdata
+                      value: '1'
+                    - type: INTEGER
+                      name: show_suppressed
+                      value: '1'
+                    - type: INTEGER
+                      name: show_timeline
+                      value: '0'
+            - name: 'Web monitoring'
+              widgets:
+                - type: item
+                  name: 'Host visible name'
+                  width: '39'
+                  height: '1'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: '{HOST.NAME}'
+                    - type: INTEGER
+                      name: desc_bold
+                      value: '1'
+                    - type: INTEGER
+                      name: desc_h_pos
+                      value: '0'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '50'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '1'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: Universal
+                        key: 'zabbix[host, ,maintenance]'
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                - type: honeycomb
+                  name: 'Host web scenarios'
+                  'y': '1'
+                  width: '52'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: items.0
+                      value: 'Failed step of scenario*'
+                    - type: INTEGER
+                      name: maintenance
+                      value: '1'
+                    - type: STRING
+                      name: primary_label
+                      value: '{{ITEM.NAME}.iregsub("scenario \"(.*)\"",\1)}'
+                    - type: STRING
+                      name: reference
+                      value: QHJJZ
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 2DC653
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: E63946
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
+                - type: honeycomb
+                  name: 'Response codes'
+                  'y': '4'
+                  width: '8'
+                  height: '10'
+                  fields:
+                    - type: STRING
+                      name: items.0
+                      value: 'Response code for step*'
+                    - type: INTEGER
+                      name: maintenance
+                      value: '1'
+                    - type: STRING
+                      name: primary_label
+                      value: |
+                        {{ITEM.NAME}.iregsub("scenario \"(.*)\"",\1)}
+                        {{ITEM.NAME}.iregsub("step \"(.*)\" of scenario",\1)}
+                    - type: STRING
+                      name: reference
+                      value: GEJQD
+                    - type: INTEGER
+                      name: secondary_label_decimal_places
+                      value: '0'
+                    - type: INTEGER
+                      name: secondary_label_units_show
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 2196F3
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '200'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 4361EE
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '300'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: AB47BC
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '400'
+                - type: itemnavigator
+                  name: 'Last error messages'
+                  'y': '14'
+                  width: '26'
+                  fields:
+                    - type: STRING
+                      name: items.0
+                      value: 'Last error message*'
+                    - type: STRING
+                      name: reference
+                      value: QRAOE
+                - type: svggraph
+                  name: 'Last 24 hours'
+                  'y': '16'
+                  width: '24'
+                  height: '4'
+                  fields:
+                    - type: INTEGER
+                      name: axisx
+                      value: '0'
+                    - type: INTEGER
+                      name: ds.0.aggregate_function
+                      value: '3'
+                    - type: STRING
+                      name: ds.0.aggregate_interval
+                      value: 10m
+                    - type: INTEGER
+                      name: ds.0.axisy
+                      value: '1'
+                    - type: STRING
+                      name: ds.0.color
+                      value: BF00FF
+                    - type: INTEGER
+                      name: ds.0.fill
+                      value: '0'
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'Response time for step*'
+                    - type: INTEGER
+                      name: ds.0.transparency
+                      value: '4'
+                    - type: INTEGER
+                      name: ds.0.width
                       value: '2'
                     - type: INTEGER
+                      name: lefty
+                      value: '0'
+                    - type: INTEGER
+                      name: legend
+                      value: '0'
+                    - type: STRING
+                      name: reference
+                      value: CEPHS
+                    - type: INTEGER
+                      name: show_problems
+                      value: '1'
+                    - type: STRING
+                      name: time_period.from
+                      value: now-1d
+                    - type: STRING
+                      name: time_period.to
+                      value: now
+                    - type: INTEGER
+                      name: working_time
+                      value: '1'
+                - type: svggraph
+                  name: 'Failed step'
+                  'y': '20'
+                  width: '24'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: ds.0.axisy
+                      value: '1'
+                    - type: STRING
+                      name: ds.0.color
+                      value: FF0000
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'Failed step of scenario*'
+                    - type: INTEGER
+                      name: ds.0.transparency
+                      value: '2'
+                    - type: INTEGER
+                      name: ds.0.type
+                      value: '2'
+                    - type: INTEGER
+                      name: lefty
+                      value: '0'
+                    - type: INTEGER
+                      name: legend
+                      value: '0'
+                    - type: STRING
+                      name: reference
+                      value: NMRUP
+                    - type: INTEGER
+                      name: show_problems
+                      value: '1'
+                    - type: STRING
+                      name: time_period.from
+                      value: now-1d
+                    - type: STRING
+                      name: time_period.to
+                      value: now
+                - type: svggraph
+                  name: 'Response times'
+                  x: '8'
+                  'y': '4'
+                  width: '64'
+                  height: '5'
+                  fields:
+                    - type: INTEGER
+                      name: ds.0.axisy
+                      value: '1'
+                    - type: STRING
+                      name: ds.0.color
+                      value: BF00FF
+                    - type: INTEGER
+                      name: ds.0.fill
+                      value: '1'
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'Response time for step*'
+                    - type: INTEGER
+                      name: ds.0.transparency
+                      value: '4'
+                    - type: INTEGER
+                      name: ds.0.width
+                      value: '2'
+                    - type: INTEGER
+                      name: lefty
+                      value: '0'
+                    - type: INTEGER
+                      name: legend_lines
+                      value: '2'
+                    - type: INTEGER
+                      name: legend_lines_mode
+                      value: '1'
+                    - type: INTEGER
+                      name: legend_statistic
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: LSZZV
+                    - type: INTEGER
+                      name: show_problems
+                      value: '1'
+                    - type: INTEGER
+                      name: simple_triggers
+                      value: '1'
+                - type: svggraph
+                  name: 'Failed step number'
+                  x: '8'
+                  'y': '9'
+                  width: '64'
+                  fields:
+                    - type: INTEGER
+                      name: ds.0.axisy
+                      value: '1'
+                    - type: STRING
+                      name: ds.0.color
+                      value: FF0000
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'Failed step of scenario*'
+                    - type: INTEGER
+                      name: ds.0.transparency
+                      value: '2'
+                    - type: INTEGER
+                      name: ds.0.type
+                      value: '2'
+                    - type: INTEGER
+                      name: lefty
+                      value: '0'
+                    - type: INTEGER
+                      name: legend
+                      value: '0'
+                    - type: STRING
+                      name: reference
+                      value: YLLLB
+                    - type: INTEGER
+                      name: show_problems
+                      value: '1'
+                - type: svggraph
+                  name: Speeds
+                  x: '8'
+                  'y': '11'
+                  width: '64'
+                  height: '3'
+                  fields:
+                    - type: INTEGER
+                      name: ds.0.axisy
+                      value: '1'
+                    - type: STRING
+                      name: ds.0.color
+                      value: 00796B
+                    - type: INTEGER
+                      name: ds.0.fill
+                      value: '1'
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'Download speed for step*'
+                    - type: INTEGER
+                      name: ds.0.transparency
+                      value: '2'
+                    - type: INTEGER
+                      name: ds.0.type
+                      value: '2'
+                    - type: INTEGER
+                      name: ds.0.width
+                      value: '2'
+                    - type: INTEGER
+                      name: lefty
+                      value: '0'
+                    - type: INTEGER
+                      name: legend
+                      value: '0'
+                    - type: STRING
+                      name: reference
+                      value: SAHEU
+                    - type: INTEGER
+                      name: show_problems
+                      value: '1'
+                    - type: INTEGER
+                      name: simple_triggers
+                      value: '1'
+                - type: svggraph
+                  name: 'Last 7 days'
+                  x: '24'
+                  'y': '16'
+                  width: '24'
+                  height: '4'
+                  fields:
+                    - type: INTEGER
+                      name: axisx
+                      value: '0'
+                    - type: INTEGER
+                      name: ds.0.aggregate_function
+                      value: '3'
+                    - type: STRING
+                      name: ds.0.aggregate_interval
+                      value: 8h
+                    - type: INTEGER
+                      name: ds.0.axisy
+                      value: '1'
+                    - type: STRING
+                      name: ds.0.color
+                      value: BF00FF
+                    - type: INTEGER
+                      name: ds.0.fill
+                      value: '0'
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'Response time for step*'
+                    - type: INTEGER
+                      name: ds.0.transparency
+                      value: '4'
+                    - type: INTEGER
+                      name: ds.0.width
+                      value: '2'
+                    - type: INTEGER
+                      name: lefty
+                      value: '0'
+                    - type: INTEGER
+                      name: legend
+                      value: '0'
+                    - type: STRING
+                      name: reference
+                      value: UFFPP
+                    - type: INTEGER
+                      name: show_problems
+                      value: '1'
+                    - type: STRING
+                      name: time_period.from
+                      value: now-7d
+                    - type: STRING
+                      name: time_period.to
+                      value: now
+                    - type: INTEGER
+                      name: working_time
+                      value: '1'
+                - type: svggraph
+                  name: 'Failed step'
+                  x: '24'
+                  'y': '20'
+                  width: '24'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: ds.0.axisy
+                      value: '1'
+                    - type: STRING
+                      name: ds.0.color
+                      value: FF0000
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'Failed step of scenario*'
+                    - type: INTEGER
+                      name: ds.0.transparency
+                      value: '2'
+                    - type: INTEGER
+                      name: ds.0.type
+                      value: '2'
+                    - type: INTEGER
+                      name: lefty
+                      value: '0'
+                    - type: INTEGER
+                      name: legend
+                      value: '0'
+                    - type: STRING
+                      name: reference
+                      value: NFZNE
+                    - type: INTEGER
+                      name: show_problems
+                      value: '1'
+                    - type: STRING
+                      name: time_period.from
+                      value: now-7d
+                    - type: STRING
+                      name: time_period.to
+                      value: now
+                - type: item
+                  x: '26'
+                  'y': '14'
+                  width: '46'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: STRING
+                      name: itemid._reference
+                      value: QRAOE._itemid
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: INTEGER
+                      name: show.1
+                      value: '3'
+                    - type: STRING
+                      name: time_color
+                      value: '787878'
+                    - type: INTEGER
+                      name: time_h_pos
+                      value: '0'
+                    - type: INTEGER
+                      name: units_bold
+                      value: '0'
+                    - type: INTEGER
+                      name: units_show
+                      value: '0'
+                    - type: INTEGER
+                      name: value_bold
+                      value: '0'
+                    - type: INTEGER
+                      name: value_h_pos
+                      value: '0'
+                    - type: INTEGER
                       name: value_size
-                      value: '50'
+                      value: '15'
+                - type: item
+                  name: Address
+                  x: '39'
+                  width: '13'
+                  height: '1'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: '{HOST.CONN}'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '35'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '1'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: Universal
+                        key: 'zabbix[host, ,maintenance]'
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                - type: svggraph
+                  name: 'Last 30 days'
+                  x: '48'
+                  'y': '16'
+                  width: '24'
+                  height: '4'
+                  fields:
+                    - type: INTEGER
+                      name: axisx
+                      value: '0'
+                    - type: INTEGER
+                      name: ds.0.axisy
+                      value: '1'
+                    - type: STRING
+                      name: ds.0.color
+                      value: BF00FF
+                    - type: INTEGER
+                      name: ds.0.fill
+                      value: '0'
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'Response time for step*'
+                    - type: INTEGER
+                      name: ds.0.transparency
+                      value: '4'
+                    - type: INTEGER
+                      name: ds.0.width
+                      value: '2'
+                    - type: INTEGER
+                      name: lefty
+                      value: '0'
+                    - type: INTEGER
+                      name: legend
+                      value: '0'
+                    - type: STRING
+                      name: reference
+                      value: XQSPA
+                    - type: INTEGER
+                      name: show_problems
+                      value: '1'
+                    - type: INTEGER
+                      name: source
+                      value: '2'
+                    - type: STRING
+                      name: time_period.from
+                      value: now-30d
+                    - type: STRING
+                      name: time_period.to
+                      value: now
+                    - type: INTEGER
+                      name: working_time
+                      value: '1'
+                - type: svggraph
+                  name: 'Failed step'
+                  x: '48'
+                  'y': '20'
+                  width: '24'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: ds.0.axisy
+                      value: '1'
+                    - type: STRING
+                      name: ds.0.color
+                      value: FF0000
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'Failed step of scenario*'
+                    - type: INTEGER
+                      name: ds.0.transparency
+                      value: '2'
+                    - type: INTEGER
+                      name: ds.0.type
+                      value: '2'
+                    - type: INTEGER
+                      name: lefty
+                      value: '0'
+                    - type: INTEGER
+                      name: legend
+                      value: '0'
+                    - type: STRING
+                      name: reference
+                      value: NDVIL
+                    - type: INTEGER
+                      name: show_problems
+                      value: '1'
+                    - type: STRING
+                      name: time_period.from
+                      value: now-30d
+                    - type: STRING
+                      name: time_period.to
+                      value: now
+                - type: item
+                  name: 'Maintenance status'
+                  x: '52'
+                  width: '20'
+                  height: '1'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: Universal
+                        key: 'zabbix[host, ,maintenance]'
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: FFA726
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '1'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: FF8000
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '2'
+                    - type: INTEGER
+                      name: units_bold
+                      value: '0'
+                    - type: INTEGER
+                      name: units_show
+                      value: '0'
+                    - type: INTEGER
+                      name: value_bold
+                      value: '0'
+                    - type: INTEGER
+                      name: value_size
+                      value: '35'
+                - type: web
+                  name: 'Host web scenarios'
+                  x: '52'
+                  'y': '1'
+                  width: '20'
+                  height: '3'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: reference
+                      value: KUWNY
       valuemaps:
+        - uuid: a3ab751da843495498a01e99ba06b071
+          name: 'Active checks availability'
+          mappings:
+            - value: '0'
+              newvalue: Unknown
+            - value: '1'
+              newvalue: Available
+            - value: '2'
+              newvalue: 'Not available'
+        - uuid: 457de5825ef94c7ea1f6cf6f7a04fdf0
+          name: 'Interfaces availability'
+          mappings:
+            - value: '0'
+              newvalue: 'Not available'
+            - value: '1'
+              newvalue: Available
+            - value: '2'
+              newvalue: Unknown
         - uuid: 3424043eb1f14bf084756e4669df3df7
           name: 'Items enabled'
           mappings:
